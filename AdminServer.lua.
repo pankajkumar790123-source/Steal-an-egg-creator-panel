@@ -1,0 +1,60 @@
+
+-- STEAL AN EGG CREATOR PANEL
+-- Server-side foundation
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Replace with your Roblox UserId
+local ADMINS = {
+    [123456789] = true
+}
+
+local remote = ReplicatedStorage:FindFirstChild("AdminCommand")
+
+if not remote then
+    remote = Instance.new("RemoteEvent")
+    remote.Name = "AdminCommand"
+    remote.Parent = ReplicatedStorage
+end
+
+local function isAdmin(player)
+    return ADMINS[player.UserId] == true
+end
+
+remote.OnServerEvent:Connect(function(player, command, target, value)
+    if not isAdmin(player) then
+        warn("Unauthorized admin command:", player.Name)
+        return
+    end
+
+    if typeof(command) ~= "string" then
+        return
+    end
+
+    if command == "Announcement" then
+        if typeof(value) == "string" then
+            print("[SERVER ANNOUNCEMENT]", value)
+        end
+
+    elseif command == "WalkSpeed" then
+        local humanoid = target
+            and target.Character
+            and target.Character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid and typeof(value) == "number" then
+            humanoid.WalkSpeed = math.clamp(value, 0, 100)
+        end
+
+    elseif command == "JumpPower" then
+        local humanoid = target
+            and target.Character
+            and target.Character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid and typeof(value) == "number" then
+            humanoid.JumpPower = math.clamp(value, 0, 200)
+        end
+    end
+end)
+
+print("Steal an Egg Admin Server Loaded!")
